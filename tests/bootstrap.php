@@ -64,6 +64,42 @@ if ( ! function_exists( 'register_post_meta' ) ) {
 	}
 }
 
+if ( ! function_exists( 'is_admin' ) ) {
+	function is_admin(): bool {
+		return false;
+	}
+}
+
+if ( ! function_exists( 'esc_attr' ) ) {
+	function esc_attr( $value ): string {
+		return htmlspecialchars( (string) $value, ENT_QUOTES, 'UTF-8' );
+	}
+}
+
+if ( ! function_exists( 'wp_strip_all_tags' ) ) {
+	function wp_strip_all_tags( string $text ): string {
+		return trim( strip_tags( $text ) );
+	}
+}
+
+if ( ! function_exists( 'wp_json_encode' ) ) {
+	function wp_json_encode( $value, int $flags = 0 ): string|false {
+		return json_encode( $value, $flags );
+	}
+}
+
+if ( ! function_exists( 'get_the_excerpt' ) ) {
+	function get_the_excerpt(): string {
+		return '';
+	}
+}
+
+if ( ! function_exists( 'get_queried_object_id' ) ) {
+	function get_queried_object_id(): int {
+		return 0;
+	}
+}
+
 $loader = __DIR__ . '/../includes/class-loader.php';
 
 if ( file_exists( $loader ) ) {

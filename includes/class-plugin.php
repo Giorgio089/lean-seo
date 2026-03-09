@@ -9,6 +9,7 @@ final class Plugin {
 	private bool $booted = false;
 	private ?Data_Store $data_store = null;
 	private ?Meta_Hijack $meta_hijack = null;
+	private ?Frontend $frontend = null;
 
 	public static function instance(): self {
 		return self::$instance ??= new self();
@@ -21,6 +22,7 @@ final class Plugin {
 
 		$this->data_store  = new Data_Store();
 		$this->meta_hijack = new Meta_Hijack( $this->data_store );
+		$this->frontend    = new Frontend( $this->data_store );
 		$this->booted      = true;
 	}
 }
