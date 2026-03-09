@@ -14,4 +14,9 @@ defined( 'ABSPATH' ) || exit;
 require_once __DIR__ . '/includes/class-loader.php';
 
 \LeanSEO\Loader::register();
+
+if ( function_exists( 'register_activation_hook' ) ) {
+	register_activation_hook( __FILE__, [ \LeanSEO\Installer::class, 'activate' ] );
+}
+
 \LeanSEO\Plugin::instance()->boot();
