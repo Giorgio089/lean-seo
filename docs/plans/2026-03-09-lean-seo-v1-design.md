@@ -42,6 +42,8 @@ lean-seo/
   assets/
     js/
       sidebar.js
+  src/
+    index.js
   build/
   includes/
     class-loader.php
@@ -123,7 +125,7 @@ Behavior:
 
 ### Admin Assets and Sidebar
 
-`class-admin-assets.php` enqueues the sidebar bundle only inside the block editor. The bundle uses `@wordpress/plugins`, `@wordpress/edit-post`, `@wordpress/components`, `@wordpress/core-data`, and `@wordpress/data`.
+`class-admin-assets.php` enqueues the sidebar bundle only inside the block editor. The bundle uses `@wordpress/plugins`, `@wordpress/edit-post`, `@wordpress/components`, `@wordpress/core-data`, and `@wordpress/data`. The build pipeline uses `src/index.js` as the `@wordpress/scripts` entrypoint and keeps the actual panel implementation in `assets/js/sidebar.js`.
 
 The UI stays intentionally small:
 

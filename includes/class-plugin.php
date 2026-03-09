@@ -7,10 +7,7 @@ defined( 'ABSPATH' ) || exit;
 final class Plugin {
 	private static ?self $instance = null;
 	private bool $booted = false;
-	private ?Data_Store $data_store = null;
-	private ?Meta_Hijack $meta_hijack = null;
-	private ?Frontend $frontend = null;
-	private ?Admin_Assets $admin_assets = null;
+	private array $services = [];
 
 	public static function instance(): self {
 		return self::$instance ??= new self();
@@ -21,10 +18,14 @@ final class Plugin {
 			return;
 		}
 
-		$this->data_store  = new Data_Store();
-		$this->meta_hijack = new Meta_Hijack( $this->data_store );
-		$this->frontend    = new Frontend( $this->data_store );
-		$this->admin_assets = new Admin_Assets();
-		$this->booted      = true;
+		$this->services['data_store']   = new Data_Store();
+		$this->services['meta_hijack']  = new Meta_Hijack( $this->services['data_store'] );
+		$this->services['frontend']     = new Frontend( $this->services['data_store'] );
+		$this->services['admin_assets'] = new Admin_Assets();
+		$this->booted                   = true;
+	}
+
+	public function has_service( string $key ): bool {
+		return isset( $this->services[ $key ] );
 	}
 }
