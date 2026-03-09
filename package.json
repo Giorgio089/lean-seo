@@ -3,5 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "scripts": {}
+  "scripts": {
+    "build": "wp-scripts build --webpack-copy-php",
+    "start": "wp-scripts start --webpack-copy-php"
+  },
+  "devDependencies": {
+    "@wordpress/scripts": "^30.24.0"
+  }
 }
