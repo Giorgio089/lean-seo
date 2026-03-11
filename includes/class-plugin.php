@@ -18,12 +18,13 @@ final class Plugin {
 			return;
 		}
 
-		$this->services['data_store']           = new Data_Store();
+		$this->services['data_store']            = new Data_Store();
 		$this->services['ai_endpoints_settings'] = new AI_Endpoints_Settings();
-		$this->services['meta_hijack']          = new Meta_Hijack( $this->services['data_store'] );
-		$this->services['frontend']             = new Frontend( $this->services['data_store'] );
-		$this->services['admin_assets']         = new Admin_Assets();
-		$this->booted                           = true;
+		$this->services['ai_endpoints_admin']    = new AI_Endpoints_Admin( $this->services['ai_endpoints_settings'] );
+		$this->services['meta_hijack']           = new Meta_Hijack( $this->services['data_store'] );
+		$this->services['frontend']              = new Frontend( $this->services['data_store'] );
+		$this->services['admin_assets']          = new Admin_Assets();
+		$this->booted                            = true;
 	}
 
 	public function has_service( string $key ): bool {

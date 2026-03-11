@@ -10,9 +10,11 @@ $GLOBALS['lean_seo_test_state'] = [
 	'enqueued_scripts' => [],
 	'filters'          => [],
 	'is_admin'         => false,
+	'menus'            => [],
 	'options'          => [],
 	'plugins_url_base' => 'https://example.com/wp-content/plugins/lean-seo/',
 	'queried_object_id'=> 0,
+	'registered_settings' => [],
 	'registered_meta'  => [],
 ];
 
@@ -24,9 +26,11 @@ function lean_seo_test_reset_state(): void {
 		'enqueued_scripts' => [],
 		'filters'          => [],
 		'is_admin'         => false,
+		'menus'            => [],
 		'options'          => [],
 		'plugins_url_base' => 'https://example.com/wp-content/plugins/lean-seo/',
 		'queried_object_id'=> 0,
+		'registered_settings' => [],
 		'registered_meta'  => [],
 	];
 }
@@ -279,6 +283,33 @@ if ( ! function_exists( 'delete_option' ) ) {
 if ( ! function_exists( 'get_option' ) ) {
 	function get_option( string $option, $default = false ) {
 		return $GLOBALS['lean_seo_test_state']['options'][ $option ] ?? $default;
+	}
+}
+
+if ( ! function_exists( 'add_options_page' ) ) {
+	function add_options_page( string $page_title, string $menu_title, string $capability, string $menu_slug, ?callable $callback = null ): string {
+		$GLOBALS['lean_seo_test_state']['menus'][] = [
+			'parent_slug' => 'options-general.php',
+			'page_title'  => $page_title,
+			'menu_title'  => $menu_title,
+			'capability'  => $capability,
+			'menu_slug'   => $menu_slug,
+			'callback'    => $callback,
+		];
+
+		return $menu_slug;
+	}
+}
+
+if ( ! function_exists( 'register_setting' ) ) {
+	function register_setting( string $option_group, string $option_name, array $args = [] ): bool {
+		$GLOBALS['lean_seo_test_state']['registered_settings'][] = [
+			'option_group' => $option_group,
+			'option_name'  => $option_name,
+			'args'         => $args,
+		];
+
+		return true;
 	}
 }
 
