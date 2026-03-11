@@ -27,4 +27,10 @@ final class InstallerTest extends TestCase {
 
 		$this->assertSame( '1', get_option( 'lean_seo_schema_version' ) );
 	}
+
+	public function test_activate_flushes_rewrite_rules_for_ai_endpoints(): void {
+		\LeanSEO\Installer::activate();
+
+		$this->assertTrue( $GLOBALS['lean_seo_test_state']['rewrite_rules_flushed'] );
+	}
 }

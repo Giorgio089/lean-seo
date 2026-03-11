@@ -21,6 +21,11 @@ final class Plugin {
 		$this->services['data_store']            = new Data_Store();
 		$this->services['ai_endpoints_settings'] = new AI_Endpoints_Settings();
 		$this->services['ai_endpoints_admin']    = new AI_Endpoints_Admin( $this->services['ai_endpoints_settings'] );
+		$this->services['ai_endpoints_renderer'] = new AI_Endpoints_Renderer( $this->services['ai_endpoints_settings'] );
+		$this->services['ai_endpoints_routes']   = new AI_Endpoints_Routes(
+			$this->services['ai_endpoints_settings'],
+			$this->services['ai_endpoints_renderer']
+		);
 		$this->services['meta_hijack']           = new Meta_Hijack( $this->services['data_store'] );
 		$this->services['frontend']              = new Frontend( $this->services['data_store'] );
 		$this->services['admin_assets']          = new Admin_Assets();

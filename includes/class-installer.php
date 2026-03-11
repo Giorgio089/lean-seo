@@ -34,5 +34,11 @@ final class Installer {
 				defined( 'LEAN_SEO_SCHEMA_VERSION' ) ? LEAN_SEO_SCHEMA_VERSION : '1'
 			);
 		}
+
+		AI_Endpoints_Routes::register_rewrite_rules();
+
+		if ( function_exists( 'flush_rewrite_rules' ) ) {
+			flush_rewrite_rules();
+		}
 	}
 }

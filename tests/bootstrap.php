@@ -16,6 +16,9 @@ $GLOBALS['lean_seo_test_state'] = [
 	'queried_object_id'=> 0,
 	'registered_settings' => [],
 	'registered_meta'  => [],
+	'rewrite_rules'    => [],
+	'rewrite_rules_flushed' => false,
+	'query_vars'       => [],
 	'site_description' => 'Lean SEO test site description',
 	'site_name'        => 'Lean SEO Test Site',
 	'site_url'         => 'https://example.com/',
@@ -35,6 +38,9 @@ function lean_seo_test_reset_state(): void {
 		'queried_object_id'=> 0,
 		'registered_settings' => [],
 		'registered_meta'  => [],
+		'rewrite_rules'    => [],
+		'rewrite_rules_flushed' => false,
+		'query_vars'       => [],
 		'site_description' => 'Lean SEO test site description',
 		'site_name'        => 'Lean SEO Test Site',
 		'site_url'         => 'https://example.com/',
@@ -332,6 +338,32 @@ if ( ! function_exists( 'register_setting' ) ) {
 		];
 
 		return true;
+	}
+}
+
+if ( ! function_exists( 'add_rewrite_rule' ) ) {
+	function add_rewrite_rule( string $regex, string $query, string $after = 'bottom' ): bool {
+		$GLOBALS['lean_seo_test_state']['rewrite_rules'][] = [
+			'regex' => $regex,
+			'query' => $query,
+			'after' => $after,
+		];
+
+		return true;
+	}
+}
+
+if ( ! function_exists( 'flush_rewrite_rules' ) ) {
+	function flush_rewrite_rules(): bool {
+		$GLOBALS['lean_seo_test_state']['rewrite_rules_flushed'] = true;
+
+		return true;
+	}
+}
+
+if ( ! function_exists( 'get_query_var' ) ) {
+	function get_query_var( string $var, $default = '' ) {
+		return $GLOBALS['lean_seo_test_state']['query_vars'][ $var ] ?? $default;
 	}
 }
 
