@@ -2,7 +2,7 @@
 
 **Date:** 2026-03-11
 
-**Status:** Approved
+**Status:** Approved and implemented on `codex/ai-endpoints`
 
 **Goal:** Add the first public AI-facing discovery endpoints to Lean SEO as global site endpoints, backed by small plugin-managed settings and WordPress site metadata.
 

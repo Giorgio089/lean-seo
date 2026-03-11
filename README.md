@@ -65,6 +65,13 @@ Eine Zeile pro Beitrag in `{$wpdb->prefix}leanseo_data` mit:
 - generierter Build in [`build/index.js`](./build/index.js) und [`build/index.asset.php`](./build/index.asset.php)
 - Enqueue-Logik in [`includes/class-admin-assets.php`](./includes/class-admin-assets.php)
 
+### AI-Discovery-Endpunkte
+
+- globale Root-Endpunkte fuer [`llms.txt`](./includes/class-ai-endpoints-routes.php) und [`agents.json`](./includes/class-ai-endpoints-routes.php)
+- eigene Site-Settings ueber [`includes/class-ai-endpoints-settings.php`](./includes/class-ai-endpoints-settings.php)
+- kleine Admin-Seite fuer die Konfiguration in [`includes/class-ai-endpoints-admin.php`](./includes/class-ai-endpoints-admin.php)
+- deterministische Renderer in [`includes/class-ai-endpoints-renderer.php`](./includes/class-ai-endpoints-renderer.php)
+
 ### Tests und Tooling
 
 - PHPUnit-Test-Harness in [`phpunit.xml.dist`](./phpunit.xml.dist) und [`tests/bootstrap.php`](./tests/bootstrap.php)
@@ -77,6 +84,7 @@ Eine Zeile pro Beitrag in `{$wpdb->prefix}leanseo_data` mit:
 
 - Custom-Table-Storage, Meta-Hijacking, Frontend-Ausgabe und Editor-Sidebar sind als erste nutzbare Plugin-Basis vorhanden.
 - Der aktuelle Fokus liegt nicht auf Feature-Breite, sondern auf einer schlanken, stabilen WordPress-Integration.
+- Globale, oeffentliche Discovery-Endpunkte fuer `llms.txt` und `agents.json` sind als naechste Site-Ebene umgesetzt.
 
 ### Bekannte Luecken
 
@@ -85,15 +93,13 @@ Eine Zeile pro Beitrag in `{$wpdb->prefix}leanseo_data` mit:
 
 ### Bewusst verschobener Scope
 
-- `llms.txt`, `agents.json` und eine eigene Lean-SEO-REST-API bleiben ausserhalb des aktuellen Release-Hardening-Zyklus.
+- eine eigene Lean-SEO-REST-API bleibt ausserhalb des aktuellen Scope.
 - Importer fuer Yoast oder Rank Math sind ebenfalls nicht Teil des aktuellen V1-Umfangs.
 
 ## Welche Tasks und Schritte noch offen sind
 
 ### Phase 3: AI- und GEO-Features
 
-- virtuelle Endpunkte fuer `llms.txt`
-- virtuelle Endpunkte fuer `agents.json`
 - eigene Lean-SEO-REST-API fuer AI-/Automation-Workflows
 - saubere Permissions- und Response-Formate fuer GET/POST-Endpunkte
 
@@ -112,6 +118,12 @@ Eine Zeile pro Beitrag in `{$wpdb->prefix}leanseo_data` mit:
 - optional: saubere Deinstallationsroutine und spaetere Schema-Migrationen
 
 ## Entwicklung
+
+### AI-Endpunkte lokal pruefen
+
+- in WordPress die Lean-SEO-AI-Einstellungen speichern
+- danach `llms.txt` unter `/llms.txt` und `agents.json` unter `/agents.json` abrufen
+- bei deaktivierten Endpunkten sollte jeweils ein `404` zurueckkommen
 
 ### Lokale Befehle
 
@@ -143,3 +155,5 @@ Die bisherigen Design- und Implementierungsdokumente liegen unter:
 
 - [`docs/plans/2026-03-09-lean-seo-v1-design.md`](./docs/plans/2026-03-09-lean-seo-v1-design.md)
 - [`docs/plans/2026-03-09-lean-seo-v1.md`](./docs/plans/2026-03-09-lean-seo-v1.md)
+- [`docs/plans/2026-03-11-lean-seo-ai-endpoints-design.md`](./docs/plans/2026-03-11-lean-seo-ai-endpoints-design.md)
+- [`docs/plans/2026-03-11-lean-seo-ai-endpoints.md`](./docs/plans/2026-03-11-lean-seo-ai-endpoints.md)

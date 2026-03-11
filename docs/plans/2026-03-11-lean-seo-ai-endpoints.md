@@ -10,6 +10,8 @@
 
 ---
 
+**Implementation Status:** Implemented on `codex/ai-endpoints`
+
 ### Task 1: Add a normalized settings service for AI endpoints
 
 **Files:**
