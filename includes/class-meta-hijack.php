@@ -63,7 +63,7 @@ final class Meta_Hijack {
 		$value    = $seo_data[ $column ] ?? '';
 
 		if ( $single ) {
-			return [ $value ];
+			return $value;
 		}
 
 		return [ $value ];

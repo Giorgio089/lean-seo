@@ -5,6 +5,14 @@ namespace LeanSEO;
 defined( 'ABSPATH' ) || exit;
 
 final class Data_Store {
+	private const ALLOWED_FIELDS = [
+		'meta_title',
+		'meta_desc',
+		'robots_noindex',
+		'robots_nofollow',
+		'schema_type',
+	];
+
 	public function get_post_seo_data( int $post_id ): array {
 		$cache_key = $this->cache_key( $post_id );
 		$cached    = function_exists( 'wp_cache_get' ) ? wp_cache_get( $cache_key, 'lean_seo' ) : false;
@@ -38,6 +46,10 @@ final class Data_Store {
 
 	public function update_field( int $post_id, string $field, $value ): bool {
 		global $wpdb;
+
+		if ( ! in_array( $field, self::ALLOWED_FIELDS, true ) ) {
+			return false;
+		}
 
 		if ( ! isset( $wpdb ) || ! method_exists( $wpdb, 'query' ) || ! method_exists( $wpdb, 'prepare' ) ) {
 			$this->delete_cache( $post_id );

@@ -3,6 +3,11 @@
 use PHPUnit\Framework\TestCase;
 
 final class PluginLoadsTest extends TestCase {
+	protected function setUp(): void {
+		lean_seo_test_reset_state();
+		lean_seo_test_reset_wpdb();
+	}
+
 	public function test_plugin_class_exists(): void {
 		$this->assertTrue( class_exists( \LeanSEO\Plugin::class ) );
 	}

@@ -1,8 +1,112 @@
 <?php
 
-define( 'ABSPATH', __DIR__ . '/../' );
+define( 'ABSPATH', dirname( __DIR__ ) . '/' );
+define( 'ARRAY_A', 'ARRAY_A' );
 
 $GLOBALS['lean_seo_test_cache'] = [];
+$GLOBALS['lean_seo_test_state'] = [
+	'actions'          => [],
+	'dbdelta_queries'  => [],
+	'enqueued_scripts' => [],
+	'filters'          => [],
+	'is_admin'         => false,
+	'options'          => [],
+	'plugins_url_base' => 'https://example.com/wp-content/plugins/lean-seo/',
+	'queried_object_id'=> 0,
+	'registered_meta'  => [],
+];
+
+function lean_seo_test_reset_state(): void {
+	$GLOBALS['lean_seo_test_cache'] = [];
+	$GLOBALS['lean_seo_test_state'] = [
+		'actions'          => [],
+		'dbdelta_queries'  => [],
+		'enqueued_scripts' => [],
+		'filters'          => [],
+		'is_admin'         => false,
+		'options'          => [],
+		'plugins_url_base' => 'https://example.com/wp-content/plugins/lean-seo/',
+		'queried_object_id'=> 0,
+		'registered_meta'  => [],
+	];
+}
+
+final class Lean_SEO_Test_WPDB {
+	public string $prefix = 'wp_';
+	public array $rows = [];
+	public array $get_row_queries = [];
+	public array $query_log = [];
+	public array $prepared_queries = [];
+	public array $dropped_tables = [];
+
+	public function prepare( string $query, ...$args ): string {
+		$index = 0;
+		$prepared = preg_replace_callback(
+			'/%(?:\d+\$)?[ds]/',
+			static function ( array $matches ) use ( $args, &$index ): string {
+				$value = $args[ $index++ ] ?? '';
+
+				if ( str_ends_with( $matches[0], 'd' ) ) {
+					return (string) (int) $value;
+				}
+
+				return "'" . addslashes( (string) $value ) . "'";
+			},
+			$query
+		);
+
+		$this->prepared_queries[] = $prepared;
+
+		return $prepared;
+	}
+
+	public function get_row( string $query, string $output = ARRAY_A ) {
+		$this->get_row_queries[] = $query;
+
+		if ( preg_match( '/WHERE post_id = (\d+)/', $query, $matches ) ) {
+			$post_id = (int) $matches[1];
+
+			return $this->rows[ $post_id ] ?? null;
+		}
+
+		return null;
+	}
+
+	public function query( string $query ) {
+		$this->query_log[] = $query;
+
+		if ( preg_match( '/DROP TABLE IF EXISTS ([a-zA-Z0-9_]+)/', $query, $matches ) ) {
+			$this->dropped_tables[] = $matches[1];
+
+			return 1;
+		}
+
+		if ( preg_match( '/INSERT INTO [a-zA-Z0-9_]+ \(post_id, ([a-z_]+), updated_at\) VALUES \((\d+), \'(.*)\', \'(.*)\'\)/', $query, $matches ) ) {
+			$field   = $matches[1];
+			$post_id = (int) $matches[2];
+			$value   = stripslashes( $matches[3] );
+
+			$row = $this->rows[ $post_id ] ?? [ 'post_id' => $post_id ];
+			$row[ $field ]      = $value;
+			$row['updated_at']  = stripslashes( $matches[4] );
+			$this->rows[ $post_id ] = $row;
+
+			return 1;
+		}
+
+		return 1;
+	}
+
+	public function get_charset_collate(): string {
+		return 'DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci';
+	}
+}
+
+function lean_seo_test_reset_wpdb(): void {
+	$GLOBALS['wpdb'] = new Lean_SEO_Test_WPDB();
+}
+
+lean_seo_test_reset_wpdb();
 
 if ( ! function_exists( 'wp_cache_get' ) ) {
 	function wp_cache_get( string $key, string $group = '' ) {
@@ -42,12 +146,26 @@ if ( ! function_exists( 'sanitize_textarea_field' ) ) {
 
 if ( ! function_exists( 'add_action' ) ) {
 	function add_action( string $hook, callable $callback, int $priority = 10, int $accepted_args = 1 ): bool {
+		$GLOBALS['lean_seo_test_state']['actions'][] = [
+			'hook'          => $hook,
+			'callback'      => $callback,
+			'priority'      => $priority,
+			'accepted_args' => $accepted_args,
+		];
+
 		return true;
 	}
 }
 
 if ( ! function_exists( 'add_filter' ) ) {
 	function add_filter( string $hook, callable $callback, int $priority = 10, int $accepted_args = 1 ): bool {
+		$GLOBALS['lean_seo_test_state']['filters'][] = [
+			'hook'          => $hook,
+			'callback'      => $callback,
+			'priority'      => $priority,
+			'accepted_args' => $accepted_args,
+		];
+
 		return true;
 	}
 }
@@ -60,13 +178,19 @@ if ( ! function_exists( 'get_post_types' ) ) {
 
 if ( ! function_exists( 'register_post_meta' ) ) {
 	function register_post_meta( string $post_type, string $meta_key, array $args = [] ): bool {
+		$GLOBALS['lean_seo_test_state']['registered_meta'][] = [
+			'post_type' => $post_type,
+			'meta_key'  => $meta_key,
+			'args'      => $args,
+		];
+
 		return true;
 	}
 }
 
 if ( ! function_exists( 'is_admin' ) ) {
 	function is_admin(): bool {
-		return false;
+		return (bool) $GLOBALS['lean_seo_test_state']['is_admin'];
 	}
 }
 
@@ -96,11 +220,61 @@ if ( ! function_exists( 'get_the_excerpt' ) ) {
 
 if ( ! function_exists( 'get_queried_object_id' ) ) {
 	function get_queried_object_id(): int {
-		return 0;
+		return (int) $GLOBALS['lean_seo_test_state']['queried_object_id'];
 	}
 }
 
-$loader = __DIR__ . '/../includes/class-loader.php';
+if ( ! function_exists( 'wp_enqueue_script' ) ) {
+	function wp_enqueue_script( string $handle, string $src = '', array $deps = [], $ver = false, array|bool $args = false ): bool {
+		$GLOBALS['lean_seo_test_state']['enqueued_scripts'][] = [
+			'handle' => $handle,
+			'src'    => $src,
+			'deps'   => $deps,
+			'ver'    => $ver,
+			'args'   => $args,
+		];
+
+		return true;
+	}
+}
+
+if ( ! function_exists( 'plugins_url' ) ) {
+	function plugins_url( string $path = '', string $plugin = '' ): string {
+		return rtrim( $GLOBALS['lean_seo_test_state']['plugins_url_base'], '/' ) . '/' . ltrim( $path, '/' );
+	}
+}
+
+if ( ! function_exists( 'dbDelta' ) ) {
+	function dbDelta( string $query ): array {
+		$GLOBALS['lean_seo_test_state']['dbdelta_queries'][] = $query;
+
+		return [ $query ];
+	}
+}
+
+if ( ! function_exists( 'update_option' ) ) {
+	function update_option( string $option, $value ): bool {
+		$GLOBALS['lean_seo_test_state']['options'][ $option ] = $value;
+
+		return true;
+	}
+}
+
+if ( ! function_exists( 'delete_option' ) ) {
+	function delete_option( string $option ): bool {
+		unset( $GLOBALS['lean_seo_test_state']['options'][ $option ] );
+
+		return true;
+	}
+}
+
+if ( ! function_exists( 'get_option' ) ) {
+	function get_option( string $option, $default = false ) {
+		return $GLOBALS['lean_seo_test_state']['options'][ $option ] ?? $default;
+	}
+}
+
+$loader = dirname( __DIR__ ) . '/includes/class-loader.php';
 
 if ( file_exists( $loader ) ) {
 	require_once $loader;
