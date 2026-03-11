@@ -11,6 +11,10 @@
 
 defined( 'ABSPATH' ) || exit;
 
+if ( ! defined( 'LEAN_SEO_SCHEMA_VERSION' ) ) {
+	define( 'LEAN_SEO_SCHEMA_VERSION', '1' );
+}
+
 require_once __DIR__ . '/includes/class-loader.php';
 
 \LeanSEO\Loader::register();

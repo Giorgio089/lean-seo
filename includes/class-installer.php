@@ -27,5 +27,12 @@ final class Installer {
 				PRIMARY KEY  (post_id)
 			) {$charset_collate};"
 		);
+
+		if ( function_exists( 'update_option' ) ) {
+			update_option(
+				'lean_seo_schema_version',
+				defined( 'LEAN_SEO_SCHEMA_VERSION' ) ? LEAN_SEO_SCHEMA_VERSION : '1'
+			);
+		}
 	}
 }

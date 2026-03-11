@@ -21,4 +21,10 @@ final class InstallerTest extends TestCase {
 			$GLOBALS['lean_seo_test_state']['dbdelta_queries'][0]
 		);
 	}
+
+	public function test_activate_persists_schema_version_option(): void {
+		\LeanSEO\Installer::activate();
+
+		$this->assertSame( '1', get_option( 'lean_seo_schema_version' ) );
+	}
 }
