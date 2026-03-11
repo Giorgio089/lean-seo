@@ -21,6 +21,7 @@ final class PluginLoadsTest extends TestCase {
 		$plugin->boot();
 
 		$this->assertTrue( $plugin->has_service( 'data_store' ) );
+		$this->assertTrue( $plugin->has_service( 'ai_endpoints_settings' ) );
 		$this->assertTrue( $plugin->has_service( 'meta_hijack' ) );
 		$this->assertTrue( $plugin->has_service( 'frontend' ) );
 		$this->assertTrue( $plugin->has_service( 'admin_assets' ) );

@@ -144,6 +144,14 @@ if ( ! function_exists( 'sanitize_textarea_field' ) ) {
 	}
 }
 
+if ( ! function_exists( 'esc_url_raw' ) ) {
+	function esc_url_raw( string $url ): string {
+		$sanitized = filter_var( $url, FILTER_VALIDATE_URL );
+
+		return false === $sanitized ? '' : $sanitized;
+	}
+}
+
 if ( ! function_exists( 'add_action' ) ) {
 	function add_action( string $hook, callable $callback, int $priority = 10, int $accepted_args = 1 ): bool {
 		$GLOBALS['lean_seo_test_state']['actions'][] = [
