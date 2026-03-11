@@ -116,10 +116,26 @@ Eine Zeile pro Beitrag in `{$wpdb->prefix}leanseo_data` mit:
 ### Lokale Befehle
 
 ```bash
+npm ci
 phpunit --configuration phpunit.xml.dist
-npm install
 npm run build
 ```
+
+Die schnellste lokale Komplettpruefung ist:
+
+```bash
+npm ci
+phpunit --configuration phpunit.xml.dist
+npm run build
+```
+
+## Continuous Integration
+
+Automatisierte Verifikation soll dieselben Kernschritte wie lokal ausfuehren:
+
+- `npm ci`
+- `npm run build`
+- `phpunit --configuration phpunit.xml.dist`
 
 ## Planung
 
