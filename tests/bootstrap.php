@@ -16,6 +16,9 @@ $GLOBALS['lean_seo_test_state'] = [
 	'queried_object_id'=> 0,
 	'registered_settings' => [],
 	'registered_meta'  => [],
+	'site_description' => 'Lean SEO test site description',
+	'site_name'        => 'Lean SEO Test Site',
+	'site_url'         => 'https://example.com/',
 ];
 
 function lean_seo_test_reset_state(): void {
@@ -32,6 +35,9 @@ function lean_seo_test_reset_state(): void {
 		'queried_object_id'=> 0,
 		'registered_settings' => [],
 		'registered_meta'  => [],
+		'site_description' => 'Lean SEO test site description',
+		'site_name'        => 'Lean SEO Test Site',
+		'site_url'         => 'https://example.com/',
 	];
 }
 
@@ -227,6 +233,22 @@ if ( ! function_exists( 'wp_json_encode' ) ) {
 if ( ! function_exists( 'get_the_excerpt' ) ) {
 	function get_the_excerpt(): string {
 		return '';
+	}
+}
+
+if ( ! function_exists( 'get_bloginfo' ) ) {
+	function get_bloginfo( string $show = '' ): string {
+		return match ( $show ) {
+			'name' => $GLOBALS['lean_seo_test_state']['site_name'],
+			'description' => $GLOBALS['lean_seo_test_state']['site_description'],
+			default => '',
+		};
+	}
+}
+
+if ( ! function_exists( 'home_url' ) ) {
+	function home_url( string $path = '' ): string {
+		return rtrim( $GLOBALS['lean_seo_test_state']['site_url'], '/' ) . '/' . ltrim( $path, '/' );
 	}
 }
 
