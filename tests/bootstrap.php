@@ -2,6 +2,7 @@
 
 define( 'ABSPATH', dirname( __DIR__ ) . '/' );
 define( 'ARRAY_A', 'ARRAY_A' );
+define( 'LEAN_SEO_TESTING', true );
 
 $GLOBALS['lean_seo_test_cache'] = [];
 $GLOBALS['lean_seo_test_state'] = [
@@ -19,6 +20,7 @@ $GLOBALS['lean_seo_test_state'] = [
 	'rewrite_rules'    => [],
 	'rewrite_rules_flushed' => false,
 	'query_vars'       => [],
+	'status_code'      => null,
 	'site_description' => 'Lean SEO test site description',
 	'site_name'        => 'Lean SEO Test Site',
 	'site_url'         => 'https://example.com/',
@@ -41,6 +43,7 @@ function lean_seo_test_reset_state(): void {
 		'rewrite_rules'    => [],
 		'rewrite_rules_flushed' => false,
 		'query_vars'       => [],
+		'status_code'      => null,
 		'site_description' => 'Lean SEO test site description',
 		'site_name'        => 'Lean SEO Test Site',
 		'site_url'         => 'https://example.com/',
@@ -364,6 +367,50 @@ if ( ! function_exists( 'flush_rewrite_rules' ) ) {
 if ( ! function_exists( 'get_query_var' ) ) {
 	function get_query_var( string $var, $default = '' ) {
 		return $GLOBALS['lean_seo_test_state']['query_vars'][ $var ] ?? $default;
+	}
+}
+
+if ( ! function_exists( 'status_header' ) ) {
+	function status_header( int $code ): bool {
+		$GLOBALS['lean_seo_test_state']['status_code'] = $code;
+
+		return true;
+	}
+}
+
+if ( ! function_exists( 'nocache_headers' ) ) {
+	function nocache_headers(): bool {
+		return true;
+	}
+}
+
+if ( ! function_exists( 'settings_fields' ) ) {
+	function settings_fields( string $option_group ): void {
+		echo '<input type="hidden" name="option_page" value="' . esc_attr( $option_group ) . '">';
+	}
+}
+
+if ( ! function_exists( 'submit_button' ) ) {
+	function submit_button( string $text = 'Save Changes' ): void {
+		echo '<button type="submit">' . esc_attr( $text ) . '</button>';
+	}
+}
+
+if ( ! function_exists( 'checked' ) ) {
+	function checked( $checked, $current = true, bool $display = true ): string {
+		$result = (string) $checked === (string) $current ? 'checked="checked"' : '';
+
+		if ( $display ) {
+			echo $result;
+		}
+
+		return $result;
+	}
+}
+
+if ( ! function_exists( 'esc_textarea' ) ) {
+	function esc_textarea( string $text ): string {
+		return htmlspecialchars( $text, ENT_QUOTES, 'UTF-8' );
 	}
 }
 

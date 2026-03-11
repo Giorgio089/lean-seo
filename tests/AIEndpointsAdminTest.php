@@ -21,4 +21,15 @@ final class AIEndpointsAdminTest extends TestCase {
 
 		$this->assertSame( 'lean_seo_ai_endpoints', $GLOBALS['lean_seo_test_state']['registered_settings'][0]['option_name'] );
 	}
+
+	public function test_render_page_outputs_named_settings_fields(): void {
+		$admin = new \LeanSEO\AI_Endpoints_Admin( new \LeanSEO\AI_Endpoints_Settings() );
+
+		ob_start();
+		$admin->render_page();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'lean_seo_ai_endpoints[llms_summary]', $output );
+		$this->assertStringContainsString( 'lean_seo_ai_endpoints[agents_name]', $output );
+	}
 }

@@ -84,6 +84,23 @@ final class AI_Endpoints_Routes {
 		if ( null === $response ) {
 			return;
 		}
+
+		if ( function_exists( 'status_header' ) ) {
+			status_header( $response['status'] );
+		}
+
+		if ( function_exists( 'nocache_headers' ) ) {
+			nocache_headers();
+		}
+
+		header( 'Content-Type: ' . $response['content_type'] );
+		echo $response['body'];
+
+		if ( defined( 'LEAN_SEO_TESTING' ) && LEAN_SEO_TESTING ) {
+			return;
+		}
+
+		exit;
 	}
 
 	private function not_found_response(): array {

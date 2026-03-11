@@ -45,4 +45,19 @@ final class AIEndpointsRoutesTest extends TestCase {
 		$this->assertSame( 200, $response['status'] );
 		$this->assertSame( 'text/plain; charset=utf-8', $response['content_type'] );
 	}
+
+	public function test_template_redirect_outputs_endpoint_body(): void {
+		$settings = new \LeanSEO\AI_Endpoints_Settings();
+		$renderer = new \LeanSEO\AI_Endpoints_Renderer( $settings );
+		$routes   = new \LeanSEO\AI_Endpoints_Routes( $settings, $renderer );
+
+		$GLOBALS['lean_seo_test_state']['query_vars']['lean_seo_ai_endpoint'] = 'llms.txt';
+
+		ob_start();
+		$routes->template_redirect();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'Site: Lean SEO Test Site', $output );
+		$this->assertSame( 200, $GLOBALS['lean_seo_test_state']['status_code'] );
+	}
 }
