@@ -65,19 +65,23 @@ final class Frontend {
 			echo $description . "\n";
 		}
 
-		$schema_markup = $this->build_schema_script( $seo );
+		// Pass post_id (stored in $seo by Data_Store::normalize_row) so the
+		// schema builder can pull live WordPress data for the current post.
+		$schema_markup = $this->build_schema_script( $seo, (int) ( $seo['post_id'] ?? 0 ) );
 
 		if ( '' !== $schema_markup ) {
 			echo $schema_markup . "\n";
 		}
 	}
 
-	public function build_schema_script( array $seo ): string {
+	public function build_schema_script( array $seo, int $post_id = 0 ): string {
 		if ( empty( $seo['schema_type'] ) || 'none' === $seo['schema_type'] ) {
 			return '';
 		}
 
-		$schema = $this->generate_schema( (string) $seo['schema_type'] );
+		// Fall back to post_id embedded in $seo when not explicitly supplied.
+		$post_id = $post_id > 0 ? $post_id : (int) ( $seo['post_id'] ?? 0 );
+		$schema  = $this->generate_schema( (string) $seo['schema_type'], $seo, $post_id );
 
 		if ( [] === $schema ) {
 			return '';
@@ -86,22 +90,92 @@ final class Frontend {
 		return '<script type="application/ld+json">' . wp_json_encode( $schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) . '</script>';
 	}
 
-	private function generate_schema( string $schema_type ): array {
-		return match ( $schema_type ) {
-			'article' => [
-				'@context' => 'https://schema.org',
-				'@type'    => 'Article',
-			],
-			'local_business' => [
-				'@context' => 'https://schema.org',
-				'@type'    => 'LocalBusiness',
-			],
-			'faq' => [
-				'@context' => 'https://schema.org',
-				'@type'    => 'FAQPage',
-			],
-			default => [],
-		};
+	private function generate_schema( string $schema_type, array $seo, int $post_id ): array {
+		$base = [ '@context' => 'https://schema.org' ];
+
+		switch ( $schema_type ) {
+
+			case 'article':
+				if ( $post_id <= 0 || ! function_exists( 'get_post' ) ) {
+					return [];
+				}
+
+				$post = get_post( $post_id );
+				if ( ! $post ) {
+					return [];
+				}
+
+				$headline    = '' !== ( $seo['meta_title'] ?? '' )
+					? wp_strip_all_tags( $seo['meta_title'] )
+					: wp_strip_all_tags( get_the_title( $post_id ) );
+
+				$description = '' !== ( $seo['meta_desc'] ?? '' )
+					? wp_strip_all_tags( $seo['meta_desc'] )
+					: wp_strip_all_tags( wp_trim_words( get_the_excerpt( $post_id ), 30, '' ) );
+
+				$schema = array_merge( $base, [
+					'@type'         => 'Article',
+					'headline'      => $headline,
+					'url'           => (string) get_permalink( $post_id ),
+					'datePublished' => (string) get_the_date( 'c', $post_id ),
+					'dateModified'  => (string) get_the_modified_date( 'c', $post_id ),
+					'author'        => [
+						'@type' => 'Person',
+						'name'  => (string) get_the_author_meta( 'display_name', (int) $post->post_author ),
+					],
+				] );
+
+				if ( '' !== $description ) {
+					$schema['description'] = $description;
+				}
+
+				$image_id = function_exists( 'get_post_thumbnail_id' ) ? (int) get_post_thumbnail_id( $post_id ) : 0;
+				if ( $image_id > 0 ) {
+					$image_url = wp_get_attachment_image_url( $image_id, 'large' );
+					if ( $image_url ) {
+						$schema['image'] = $image_url;
+					}
+				}
+
+				return $schema;
+
+			case 'local_business':
+				$name        = function_exists( 'get_bloginfo' ) ? (string) get_bloginfo( 'name' ) : '';
+				$url         = function_exists( 'home_url' ) ? (string) home_url( '/' ) : '/';
+				$description = '' !== ( $seo['meta_desc'] ?? '' )
+					? wp_strip_all_tags( $seo['meta_desc'] )
+					: ( function_exists( 'get_bloginfo' ) ? (string) get_bloginfo( 'description' ) : '' );
+
+				$schema = array_merge( $base, [
+					'@type' => 'LocalBusiness',
+					'name'  => $name,
+					'url'   => $url,
+				] );
+
+				if ( '' !== $description ) {
+					$schema['description'] = $description;
+				}
+
+				if ( $post_id > 0 && function_exists( 'get_post_thumbnail_id' ) ) {
+					$image_id = (int) get_post_thumbnail_id( $post_id );
+					if ( $image_id > 0 ) {
+						$image_url = wp_get_attachment_image_url( $image_id, 'large' );
+						if ( $image_url ) {
+							$schema['image'] = $image_url;
+						}
+					}
+				}
+
+				return $schema;
+
+			case 'faq':
+				// FAQPage requires mainEntity (Question + acceptedAnswer pairs).
+				// Suppressed until a FAQ content field is added to the data model.
+				return [];
+
+			default:
+				return [];
+		}
 	}
 
 	private function get_current_seo_data(): array {

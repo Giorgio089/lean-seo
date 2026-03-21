@@ -19,8 +19,12 @@ require_once __DIR__ . '/includes/class-loader.php';
 
 \LeanSEO\Loader::register();
 
-if ( function_exists( 'register_activation_hook' ) ) {
-	register_activation_hook( __FILE__, [ \LeanSEO\Installer::class, 'activate' ] );
-}
+register_activation_hook( __FILE__, [ \LeanSEO\Installer::class, 'activate' ] );
+
+register_deactivation_hook( __FILE__, function () {
+	if ( function_exists( 'flush_rewrite_rules' ) ) {
+		flush_rewrite_rules();
+	}
+} );
 
 \LeanSEO\Plugin::instance()->boot();

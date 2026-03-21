@@ -30,7 +30,7 @@ final class AI_Endpoints_Renderer {
 		$settings = $this->settings->sanitize( $settings );
 		$payload  = [
 			'name'        => '' !== $settings['agents_name'] ? $settings['agents_name'] : $this->site_name(),
-			'description' => '' !== $settings['agents_description'] ? $settings['agents_description'] : $this->fallback_description( $settings ),
+			'description' => '' !== $settings['agents_description'] ? $settings['agents_description'] : $this->site_description( $settings ),
 			'url'         => '' !== $settings['agents_url'] ? $settings['agents_url'] : $this->site_url(),
 		];
 
@@ -42,14 +42,6 @@ final class AI_Endpoints_Renderer {
 	}
 
 	private function site_description( array $settings ): string {
-		if ( '' !== $settings['llms_summary'] ) {
-			return $settings['llms_summary'];
-		}
-
-		return function_exists( 'get_bloginfo' ) ? (string) get_bloginfo( 'description' ) : '';
-	}
-
-	private function fallback_description( array $settings ): string {
 		if ( '' !== $settings['llms_summary'] ) {
 			return $settings['llms_summary'];
 		}

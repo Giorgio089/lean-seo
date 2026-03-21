@@ -10,4 +10,5 @@ if ( isset( $wpdb ) && method_exists( $wpdb, 'query' ) ) {
 
 if ( function_exists( 'delete_option' ) ) {
 	delete_option( 'lean_seo_schema_version' );
+	delete_option( 'lean_seo_ai_endpoints' );
 }

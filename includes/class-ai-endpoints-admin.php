@@ -47,6 +47,7 @@ final class AI_Endpoints_Admin {
 
 		echo '<div class="wrap">';
 		echo '<h1>Lean SEO AI Endpoints</h1>';
+		settings_errors( 'lean_seo_ai_endpoints' );
 		echo '<form method="post" action="options.php">';
 		if ( function_exists( 'settings_fields' ) ) {
 			settings_fields( 'lean_seo_ai_endpoints' );
