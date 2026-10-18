@@ -19,19 +19,7 @@ Lean SEO ist ein schlankes, performance-orientiertes WordPress-SEO-Plugin als Ge
 - Frontend-Ausgabe fuer Title, Meta Description, Robots und Schema bleibt bewusst minimal und nativ
 - Build fuer die Gutenberg-Sidebar ueber `@wordpress/scripts`
 
-### Geplante Datenstruktur
-
-Eine Zeile pro Beitrag in `{$wpdb->prefix}leanseo_data` mit:
-
-- `post_id`
-- `meta_title`
-- `meta_desc`
-- `robots_noindex`
-- `robots_nofollow`
-- `schema_type`
-- `updated_at`
-
-## Was wurde umgesetzt
+## Was wurde umgesetzt (v0.5.0)
 
 ### Plugin-Fundament
 
@@ -39,6 +27,7 @@ Eine Zeile pro Beitrag in `{$wpdb->prefix}leanseo_data` mit:
 - schlanker Namespace-Autoloader in [`includes/class-loader.php`](./includes/class-loader.php)
 - zentrale Plugin-Verdrahtung in [`includes/class-plugin.php`](./includes/class-plugin.php)
 - Installationsroutine fuer die Custom Table in [`includes/class-installer.php`](./includes/class-installer.php)
+- Plugin-Konstanten: `LEAN_SEO_FILE`, `LEAN_SEO_DIR`, `LEAN_SEO_URL`, `LEAN_SEO_VERSION`
 
 ### Datenspeicherung und Meta-Hijacking
 
@@ -53,13 +42,25 @@ Eine Zeile pro Beitrag in `{$wpdb->prefix}leanseo_data` mit:
 - Ueberschreiben des Dokument-Titels, wenn ein eigener SEO-Titel vorhanden ist
 - Setzen von `noindex` und `nofollow` ueber `wp_robots`
 - Ausgabe der Meta Description
-- einfache JSON-LD-Ausgabe fuer `article`, `local_business` und `faq`
+- Canonical URL Output
+- Open Graph Tags (`og:type`, `og:title`, `og:description`, `og:url`, `og:image`, `og:site_name`, `og:locale`)
+- Twitter Card Tags (`twitter:card`, `twitter:title`, `twitter:description`, `twitter:image`)
+- JSON-LD Schema fuer `Article`, `LocalBusiness` (mit Adresse + Telefon), `Organization`
+- Sitemap noindex Filter (schliesst noindex-Posts aus `/wp-sitemap.xml` aus)
 - Implementierung in [`includes/class-frontend.php`](./includes/class-frontend.php)
+
+### Globale Site Settings
+
+- Zentrale Einstellungen unter Settings > Lean SEO
+- OG Fallback-Bild, Titel-Trennzeichen, Homepage Meta-Titel/Description
+- Organisationsdaten (Name, Logo, Telefon, Adresse) fuer Schema-Ausgabe
+- Implementierung in [`includes/class-site-settings.php`](./includes/class-site-settings.php) und [`includes/class-site-settings-admin.php`](./includes/class-site-settings-admin.php)
 
 ### Gutenberg-Sidebar
 
 - nativer Sidebar-Panel-Build mit WordPress-Komponenten
-- Felder fuer SEO-Titel, Description, `noindex`, `nofollow` und Schema-Typ
+- Felder fuer SEO-Titel, Description, OG Bild URL, `noindex`, `nofollow` und Schema-Typ
+- Schema-Optionen: Kein Schema, Artikel, Local Business, Organisation, FAQ
 - React-Code in [`assets/js/sidebar.js`](./assets/js/sidebar.js)
 - Build-Entrypoint in [`src/index.js`](./src/index.js)
 - generierter Build in [`build/index.js`](./build/index.js) und [`build/index.asset.php`](./build/index.asset.php)
@@ -78,23 +79,27 @@ Eine Zeile pro Beitrag in `{$wpdb->prefix}leanseo_data` mit:
 - Tests fuer Plugin-Boot, Datenspeicher, Meta-Hijack und Frontend
 - Node-Setup ueber [`package.json`](./package.json) mit `@wordpress/scripts`
 
-## Aktueller Reifegrad
+## Datenstruktur
 
-### Implementierter V1-Stand
+Eine Zeile pro Beitrag in `{$wpdb->prefix}leanseo_data` mit:
 
-- Custom-Table-Storage, Meta-Hijacking, Frontend-Ausgabe und Editor-Sidebar sind als erste nutzbare Plugin-Basis vorhanden.
-- Der aktuelle Fokus liegt nicht auf Feature-Breite, sondern auf einer schlanken, stabilen WordPress-Integration.
-- Globale, oeffentliche Discovery-Endpunkte fuer `llms.txt` und `agents.json` sind als naechste Site-Ebene umgesetzt.
+- `post_id`
+- `meta_title`
+- `meta_desc`
+- `robots_noindex`
+- `robots_nofollow`
+- `schema_type`
+- `canonical`
+- `og_image`
+- `updated_at`
 
-### Bekannte Luecken
+## Bewusst verschobener Scope
 
-- Die vorhandenen PHPUnit-Tests decken vor allem Kernverhalten mit Test-Doubles ab und noch keine echte WordPress-Laufzeitintegration.
-- Installations-, Uninstall- und CI-Themen werden nachgezogen, bevor neue groessere Produktflaechen dazukommen.
-
-### Bewusst verschobener Scope
-
-- eine eigene Lean-SEO-REST-API bleibt ausserhalb des aktuellen Scope.
-- Importer fuer Yoast oder Rank Math sind ebenfalls nicht Teil des aktuellen V1-Umfangs.
+- Redirect Manager (`.htaccess` oder dediziertes Redirect-Plugin verwenden)
+- Yoast / Rank Math Importer
+- FAQ Schema (benoetigt FAQ Content-Modell)
+- Scoring / Content-Analyse
+- XML Sitemap Generierung (WP Core Sitemap unter `/wp-sitemap.xml` wird genutzt)
 
 ## Welche Tasks und Schritte noch offen sind
 

@@ -26,9 +26,9 @@ final class Admin_Assets {
 
 		wp_enqueue_script(
 			'lean-seo-sidebar',
-			plugins_url( 'build/index.js', dirname( __DIR__ ) . '/lean-seo.php' ),
+			defined( 'LEAN_SEO_URL' ) ? LEAN_SEO_URL . 'build/index.js' : '',
 			$asset['dependencies'] ?? [],
-			$asset['version'] ?? false,
+			$asset['version'] ?? LEAN_SEO_VERSION ?? false,
 			true
 		);
 	}

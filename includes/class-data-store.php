@@ -11,6 +11,8 @@ final class Data_Store {
 		'robots_noindex',
 		'robots_nofollow',
 		'schema_type',
+		'canonical',
+		'og_image',
 	];
 
 	public function get_post_seo_data( int $post_id ): array {
@@ -80,6 +82,8 @@ final class Data_Store {
 			'robots_noindex'  => ! empty( $row['robots_noindex'] ) ? 1 : 0,
 			'robots_nofollow' => ! empty( $row['robots_nofollow'] ) ? 1 : 0,
 			'schema_type'     => (string) ( $row['schema_type'] ?? 'none' ),
+			'canonical'       => (string) ( $row['canonical'] ?? '' ),
+			'og_image'        => (string) ( $row['og_image'] ?? '' ),
 			'updated_at'      => $row['updated_at'] ?? null,
 		];
 	}

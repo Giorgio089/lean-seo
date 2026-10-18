@@ -19,6 +19,7 @@ final class DataStoreTest extends TestCase {
 				'robots_noindex'  => 0,
 				'robots_nofollow' => 0,
 				'schema_type'     => 'none',
+				'canonical'       => '',
 				'updated_at'      => null,
 			],
 			$store->normalize_row( [ 'post_id' => 99 ] )
@@ -35,6 +36,7 @@ final class DataStoreTest extends TestCase {
 			'robots_noindex'  => 0,
 			'robots_nofollow' => 1,
 			'schema_type'     => 'article',
+			'canonical'       => 'https://example.com/canonical',
 			'updated_at'      => '2026-03-11 09:00:00',
 		];
 
@@ -44,6 +46,7 @@ final class DataStoreTest extends TestCase {
 		$second = $store->get_post_seo_data( 42 );
 
 		$this->assertSame( 'Lean title', $first['meta_title'] );
+		$this->assertSame( 'https://example.com/canonical', $first['canonical'] );
 		$this->assertSame( $first, $second );
 		$this->assertCount( 1, $wpdb->get_row_queries );
 	}

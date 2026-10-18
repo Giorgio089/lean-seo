@@ -28,11 +28,21 @@ final class Plugin {
 		);
 		$this->services['meta_hijack']           = new Meta_Hijack( $this->services['data_store'] );
 		$this->services['frontend']              = new Frontend( $this->services['data_store'] );
+		$this->services['site_settings']         = Site_Settings::instance();
+		$this->services['site_settings_admin']   = new Site_Settings_Admin( $this->services['site_settings'] );
 		$this->services['admin_assets']          = new Admin_Assets();
 		$this->booted                            = true;
 	}
 
 	public function has_service( string $key ): bool {
 		return isset( $this->services[ $key ] );
+	}
+
+	public function service( string $key ): object {
+		if ( ! isset( $this->services[ $key ] ) ) {
+			throw new \RuntimeException( "LeanSEO: Service '{$key}' not found." );
+		}
+
+		return $this->services[ $key ];
 	}
 }

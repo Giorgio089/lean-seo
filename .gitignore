@@ -2,3 +2,5 @@
 /vendor/
 /.phpunit.result.cache
 /.worktrees/
+.DS_Store
+/dist/

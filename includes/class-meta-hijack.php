@@ -11,6 +11,7 @@ final class Meta_Hijack {
 		'_lean_seo_noindex'  => 'robots_noindex',
 		'_lean_seo_nofollow' => 'robots_nofollow',
 		'_lean_seo_schema'   => 'schema_type',
+		'_lean_seo_og_image' => 'og_image',
 	];
 
 	public function __construct( private Data_Store $store ) {
@@ -43,9 +44,15 @@ final class Meta_Hijack {
 					$post_type,
 					$meta_key,
 					[
-						'show_in_rest' => true,
-						'single'       => true,
-						'type'         => $type,
+						'show_in_rest'  => true,
+						'single'        => true,
+						'type'          => $type,
+						// Underscore-prefixed meta keys werden von WP als "protected" eingestuft
+						// und erhalten ohne expliziten auth_callback automatisch __return_false
+						// → REST-API-Writes schlagen still fehl. Explizit erlauben:
+						'auth_callback' => static function ( $allowed, $meta_key, $post_id ) {
+							return current_user_can( 'edit_post', $post_id );
+						},
 					]
 				);
 			}
@@ -63,6 +70,11 @@ final class Meta_Hijack {
 		$value    = $seo_data[ $column ] ?? '';
 
 		if ( $single ) {
+			// Cast booleans korrekt für REST-API / Gutenberg Kompatibilität.
+			$bool_columns = [ 'robots_noindex', 'robots_nofollow' ];
+			if ( in_array( $column, $bool_columns, true ) ) {
+				return (bool) $value;
+			}
 			return $value;
 		}
 
@@ -87,6 +99,12 @@ final class Meta_Hijack {
 			return ! empty( $meta_value ) ? 1 : 0;
 		}
 
+		if ( '_lean_seo_og_image' === $meta_key ) {
+			return function_exists( 'esc_url_raw' )
+				? esc_url_raw( (string) $meta_value )
+				: ( filter_var( (string) $meta_value, FILTER_VALIDATE_URL ) ?: '' );
+		}
+
 		if ( '_lean_seo_desc' === $meta_key ) {
 			return function_exists( 'sanitize_textarea_field' )
 				? sanitize_textarea_field( $meta_value )
@@ -94,7 +112,7 @@ final class Meta_Hijack {
 		}
 
 		if ( '_lean_seo_schema' === $meta_key ) {
-			$allowed = [ 'none', 'article', 'local_business', 'faq' ];
+			$allowed = [ 'none', 'article', 'local_business', 'organization', 'faq' ];
 			$value   = function_exists( 'sanitize_text_field' )
 				? sanitize_text_field( $meta_value )
 				: trim( strip_tags( (string) $meta_value ) );

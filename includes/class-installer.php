@@ -23,6 +23,8 @@ final class Installer {
 				robots_noindex TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
 				robots_nofollow TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
 				schema_type VARCHAR(50) NOT NULL DEFAULT 'none',
+				canonical TEXT NULL,
+				og_image TEXT NULL,
 				updated_at DATETIME NULL,
 				PRIMARY KEY  (post_id)
 			) {$charset_collate};"

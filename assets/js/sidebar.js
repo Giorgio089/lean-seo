@@ -1,5 +1,5 @@
 import { registerPlugin } from '@wordpress/plugins';
-import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
+import { PluginDocumentSettingPanel } from '@wordpress/editor';
 import {
 	SelectControl,
 	TextControl,
@@ -40,6 +40,12 @@ const LeanSeoPanel = () => {
 				onChange={ ( value ) => updateMeta( '_lean_seo_desc', value ) }
 				rows={ 4 }
 			/>
+			<TextControl
+				label="OG Bild URL (optional)"
+				value={ meta._lean_seo_og_image || '' }
+				onChange={ ( value ) => updateMeta( '_lean_seo_og_image', value ) }
+				help="Leer lassen = Featured Image oder globales Fallback-Bild wird verwendet."
+			/>
 			<ToggleControl
 				label="noindex"
 				checked={ !! meta._lean_seo_noindex }
@@ -57,6 +63,7 @@ const LeanSeoPanel = () => {
 					{ label: 'Kein Schema', value: 'none' },
 					{ label: 'Artikel', value: 'article' },
 					{ label: 'Local Business', value: 'local_business' },
+					{ label: 'Organisation', value: 'organization' },
 					{ label: 'FAQ', value: 'faq' },
 				] }
 				onChange={ ( value ) => updateMeta( '_lean_seo_schema', value ) }
